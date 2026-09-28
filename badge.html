@@ -357,6 +357,15 @@ img { max-width: 100%; }
 .sh-x { background: #111; border: 1px solid rgba(255, 255, 255, .25); }
 .sh-more { background: rgba(253, 248, 239, .14); border: 1px solid rgba(253, 248, 239, .3); }
 .sh-copy { margin-top: 12px; }
+.sh.pick { box-shadow: 0 0 0 3px #ffe29a, 0 4px 0 rgba(0, 0, 0, .35); }
+/* Kiosktaki sembole dokunularak gelindiyse: sayfanın başında o uygulamanın büyük "paylaş" düğmesi */
+.sh-hero { max-width: 26rem; margin: 0 auto 22px; text-align: center; }
+.sh-hero[hidden] { display: none; }
+.sh-hero .sh { flex-direction: row; justify-content: center; gap: 12px; width: 100%; padding: 18px 16px; border-radius: 18px; font-size: 1.2rem; }
+.sh-hero .sh svg { width: 32px; height: 32px; }
+.sh-hero .status { color: #fdf8ef; }
+.sh-note { margin: 10px 0 0; font-size: .85rem; line-height: 1.4; color: var(--muted); }
+.sh-hero .sh-note { font-size: .95rem; color: #ffe29a; }
 .sp-fact { max-width: 26rem; margin: 16px auto 0; padding: 12px 16px; border-radius: 14px; background: rgba(242, 193, 78, .1); border: 1px solid rgba(242, 193, 78, .38); color: #fdf8ef; font-size: .95rem; line-height: 1.45; }
 .sp-fact b { color: #ffe29a; }
 /* Kâşif Kartı */
@@ -396,6 +405,12 @@ img { max-width: 100%; }
       <div class="intro">
         <h1>Tebrikler!</h1>
         <p>Kâşif Kartınız ve katılım belgeniz hazır. Aşağıdaki düğmelerle ikisini de telefonunuza resim olarak kaydedebilirsiniz.</p>
+      </div>
+
+      <div class="sh-hero" id="sh-hero" hidden>
+        <button type="button" class="sh" id="sh-hero-btn"></button>
+        <p class="sh-note" id="sh-hero-note"></p>
+        <p class="status" id="st-hero" role="status" aria-live="polite"></p>
       </div>
 
       <div class="ok-grid">
@@ -438,6 +453,7 @@ img { max-width: 100%; }
                 <span>Diğer</span>
               </button>
             </div>
+            <p class="sh-note">📋 Instagram ve Facebook’ta etiketli açıklama panoya kopyalanır: paylaşırken açıklama kutusuna uzun basıp “Yapıştır”a dokunun.</p>
             <button type="button" class="btn-2 sh-copy" id="sh-copy">Bağlantıyı kopyala</button>
             <p class="status" id="st-share" role="status" aria-live="polite"></p>
             <a class="ig-open" id="ig-open" href="#" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg><span>Instagram'ı aç</span></a>
@@ -526,6 +542,7 @@ img { max-width: 100%; }
                 <span>Diğer</span>
               </button>
             </div>
+            <p class="sh-note">📋 Instagram ve Facebook’ta etiketli açıklama panoya kopyalanır: paylaşırken açıklama kutusuna uzun basıp “Yapıştır”a dokunun.</p>
             <button type="button" class="btn-2 sh-copy" id="sh-copy-c">Bağlantıyı kopyala</button>
             <p class="status" id="st-share-c" role="status" aria-live="polite"></p>
             <a class="ig-open" id="ig-open-c" href="#" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg><span>Instagram'ı aç</span></a>
@@ -713,9 +730,10 @@ img { max-width: 100%; }
     var g = typeof o.g === "string" && hasProp(GROUPS, o.g) ? o.g : null;
     var pk = typeof o.p === "string" && /^[a-z-]{2,30}$/.test(o.p) && window.PHOTOS && hasProp(window.PHOTOS, o.p) ? o.p : null;
     var a = num(o.a, 1, 99), no = num(o.no, 0, 99999);
+    var sh = typeof o.sh === "string" && /^(ig|wa|fb|x)$/.test(o.sh) ? o.sh : null; // kioskta seçilen paylaşım yeri
     // Kategori adı: yaş varsa kiosktaki yaş seviyesine göre (js/config.js > LEVELS), yoksa eski gruba göre
     var gl = a ? (a <= 8 ? "7⁠–⁠8 yaş" : a <= 10 ? "9⁠–⁠10 yaş" : a <= 13 ? "11⁠–⁠13 yaş" : "14 yaş ve üstü") : (g ? GROUPS[g] : null); // bölünmesin
-    return { n: n, s: s, c: c, q: q, t: t, i: cleanEmoji(o.i), g: g, gl: gl, d: parseDate(o.d), p: pk, a: a, no: no };
+    return { n: n, s: s, c: c, q: q, t: t, i: cleanEmoji(o.i), g: g, gl: gl, d: parseDate(o.d), p: pk, a: a, no: no, sh: sh };
   }
 
   /* ================= Sayfaya yazma (yalnızca textContent) ================= */
@@ -752,6 +770,7 @@ img { max-width: 100%; }
     $("#kcard-wrap").className = "kcard tier-" + window.KasifCard.tierFor(D.c, D.q);
     window.KasifCard.draw($("#kcard-view"), cardData(D));
     setShareLinks();
+    setHero(D.sh);
     // Endemik tür bilgisi
     var sp = null, E = window.ENDEMICS || [];
     for (var k = 0; k < E.length; k++) if (E[k].key === D.p) { sp = E[k]; break; }
@@ -1272,10 +1291,10 @@ img { max-width: 100%; }
   function setShareLinks() {
     var url = location.href, text = shareText(), ct = certText();
     openUrl($("#sh-wa-c"), "https://wa.me/?text=" + encodeURIComponent(ct + "\n" + url));
-    openUrl($("#sh-fb-c"), "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url) + "&quote=" + encodeURIComponent(ct));
+    openUrl($("#sh-fb-c"), "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url) + "&hashtag=%23TEKNOFEST&quote=" + encodeURIComponent(ct));
     openUrl($("#sh-x-c"), "https://twitter.com/intent/tweet?text=" + encodeURIComponent(ct) + "&url=" + encodeURIComponent(url));
     openUrl($("#sh-wa"), "https://wa.me/?text=" + encodeURIComponent(text + "\n" + url));
-    openUrl($("#sh-fb"), "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url) + "&quote=" + encodeURIComponent(text));
+    openUrl($("#sh-fb"), "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url) + "&hashtag=%23TEKNOFEST&quote=" + encodeURIComponent(text));
     openUrl($("#sh-x"), "https://twitter.com/intent/tweet?text=" + encodeURIComponent(text) + "&url=" + encodeURIComponent(url));
   }
 
@@ -1335,24 +1354,92 @@ img { max-width: 100%; }
   }
   // Görseli paylaş menüsüyle gönderir. Yalnız dosya: metin eklenince iPhone'da Instagram listeden düşebiliyor.
   // Paylaşım dokunuşun içinde çağrılmalı (görsel önceden hazırlanır); olmazsa görsel kaydedilir ve "Instagram'ı aç" gösterilir.
-  function igShare(r, statusFn, igBtn) {
+  // Instagram gönderi açıklamasına dışarıdan metin yazdırmaz: etiketli açıklama panoya kopyalanır, ziyaretçi yapıştırır.
+  function igShare(r, statusFn, igBtn, text) {
     igBtn.hidden = false;
-    var f = fileOf(r);
+    var f = fileOf(r), copied = copyText(text);
+    var paste = copied ? " 📋 Etiketli açıklama kopyalandı: gönderi açıklamasına uzun basıp “Yapıştır”a dokunun." : "";
     if (canShareFile(f)) {
-      statusFn("Açılan menüde Instagram'ı seçin. Listede yoksa önce “Resmi Kaydet”e, sonra aşağıdaki “Instagram'ı aç”a dokunun.");
-      navigator.share({ files: [f] }).then(function () { statusFn("Paylaşıldı, teşekkürler! 🌾"); }, function (err) {
+      statusFn("Açılan menüde Instagram'ı seçin." + paste);
+      navigator.share({ files: [f] }).then(function () { statusFn(copied ? "📋 Etiketler panoda: açıklamaya uzun basıp “Yapıştır”a dokunun. Teşekkürler! 🌾" : "Paylaşıldı, teşekkürler! 🌾"); }, function (err) {
         if (err && err.name === "NotAllowedError") statusFn("Görsel hazır. Paylaşmak için Instagram düğmesine yeniden dokunun.");
       });
     } else {
       download(r);
-      statusFn("Görsel kaydedildi. Şimdi “Instagram'ı aç”a dokunun ve Hikâye > Galeri'den bu görseli seçin.");
+      statusFn("Görsel kaydedildi. Şimdi “Instagram'ı aç”a dokunun ve Galeri'den bu görseli seçin." + paste);
     }
   }
-  function onInstagram() {
+  function onInstagram(statusFn) {
+    statusFn = typeof statusFn === "function" ? statusFn : shareStatus;
     var ig = $("#ig-open");
-    if (story) { igShare(story, shareStatus, ig); return; }
-    shareStatus("Görsel hazırlanıyor…");
-    prepareStory().then(function (r) { igShare(r, shareStatus, ig); }, function () { shareStatus("Görsel hazırlanamadı. Sayfayı yenileyip yeniden deneyin.", true); });
+    if (story) { igShare(story, statusFn, ig, shareText()); return; }
+    statusFn("Görsel hazırlanıyor…");
+    prepareStory().then(function (r) { igShare(r, statusFn, ig, shareText()); }, function () { statusFn("Görsel hazırlanamadı. Sayfayı yenileyip yeniden deneyin.", true); });
+  }
+
+  // Panoya kopyala (dokunuşun içinde, paylaşımdan önce çağrılır). Kopyalanabildiyse true.
+  function copyText(t) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) { navigator.clipboard.writeText(t).catch(function () {}); return true; }
+    } catch (e) { /* aşağıdaki yola geç */ }
+    var ta = document.createElement("textarea");
+    ta.value = t; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.top = "0"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+  // WhatsApp ve X: görsel, etiketli metin açıklamasıyla gider. Facebook metni almaz: açıklama panoya kopyalanır.
+  var SH_ACC = { wa: "WhatsApp'ı", fb: "Facebook'u", x: "X'i" };
+  function sendImage(kind, r, text, statusFn) {
+    var f = fileOf(r), data = { files: [f] }, copied = false;
+    if (kind === "fb") {
+      copied = copyText(text);
+      statusFn("Açılan menüde Facebook'u seçin." + (copied ? " 📋 Etiketli açıklama kopyalandı: gönderi alanına uzun basıp “Yapıştır”a dokunun." : ""));
+    } else {
+      data.text = text;
+      statusFn("Açılan menüde " + SH_ACC[kind] + " seçin; görsel etiketli açıklamasıyla birlikte gider.");
+    }
+    navigator.share(data).then(function () { statusFn(copied ? "📋 Etiketler panoda: açıklamaya uzun basıp “Yapıştır”a dokunun. Teşekkürler! 🌾" : "Paylaşıldı, teşekkürler! 🌾"); }, function (err) {
+      if (err && err.name === "NotAllowedError") statusFn("Görsel hazır. Paylaşmak için düğmeye yeniden dokunun.");
+      else statusFn("");
+    });
+  }
+  // Görsel paylaşılamıyorsa (bilgisayar, eski tarayıcı) düğmenin bağlantısı açılır: yalnız metin + etiketler.
+  function onSocial(kind, which, statusFn, e) {
+    var text = which === "cert" ? certText() : shareText();
+    var link = document.getElementById("sh-" + kind + (which === "cert" ? "-c" : ""));
+    var viaLink = function () { if (!e) window.open(link.href, "_blank", "noopener"); };
+    if (ready[which]) {
+      if (!canShareFile(fileOf(ready[which]))) { viaLink(); return; }
+      if (e) e.preventDefault();
+      sendImage(kind, ready[which], text, statusFn);
+      return;
+    }
+    if (!(navigator.canShare && navigator.share)) { viaLink(); return; }
+    if (e) e.preventDefault();
+    statusFn("Görsel hazırlanıyor…");
+    build(which).then(function (r) {
+      if (canShareFile(fileOf(r))) sendImage(kind, r, text, statusFn);
+      else { statusFn(""); window.open(link.href, "_blank", "noopener"); }
+    }, function () { statusFn(""); window.open(link.href, "_blank", "noopener"); });
+  }
+  function heroStatus(msg, isErr) { var st = $("#st-hero"); st.textContent = msg; st.classList.toggle("err", !!isErr); }
+  var SH_IN = { ig: "Instagram'da", wa: "WhatsApp'ta", fb: "Facebook'ta", x: "X'te" };
+  // Kioskta hangi sembole dokunulduysa sayfanın başına o uygulamanın paylaş düğmesi
+  function setHero(sh) {
+    ["ig", "wa", "fb", "x"].forEach(function (k) { $("#sh-" + k).classList.toggle("pick", k === sh); });
+    var hero = $("#sh-hero"), btn = $("#sh-hero-btn");
+    hero.hidden = !sh; heroStatus("");
+    if (!sh) return;
+    btn.className = "sh sh-" + sh; clear(btn);
+    btn.appendChild($("#sh-" + sh + " svg").cloneNode(true));
+    var t = document.createElement("span"); t.textContent = SH_IN[sh] + " paylaş"; btn.appendChild(t);
+    $("#sh-hero-note").textContent = sh === "ig" || sh === "fb"
+      ? "📋 Etiketler (#TEKNOFEST #TAGEM…) kopyalanır: paylaşırken açıklama kutusuna uzun basıp “Yapıştır”a dokunun."
+      : "Görselin, #TEKNOFEST #TAGEM etiketli açıklamasıyla birlikte gider.";
+    btn.setAttribute("data-sh", sh);
   }
   function onMore() {
     var go = function (r) {
@@ -1367,7 +1454,7 @@ img { max-width: 100%; }
   function certStatus(msg, isErr) { var st = $("#st-share-c"); st.textContent = msg; st.classList.toggle("err", !!isErr); }
   function onCertShare(isInstagram) {
     var go = function (r) {
-      if (isInstagram) { igShare(r, certStatus, $("#ig-open-c")); return; }
+      if (isInstagram) { igShare(r, certStatus, $("#ig-open-c"), certText()); return; }
       var f = fileOf(r);
       if (canShareFile(f)) {
         navigator.share({ files: [f], text: certText() }).then(function () { certStatus(""); }, function () {});
@@ -1413,7 +1500,15 @@ img { max-width: 100%; }
 
   document.getElementById("save-badge").addEventListener("click", function () { onSave("badge"); });
   document.getElementById("save-cert").addEventListener("click", function () { onSave("cert"); });
-  document.getElementById("sh-ig").addEventListener("click", onInstagram);
+  document.getElementById("sh-ig").addEventListener("click", function () { onInstagram(shareStatus); });
+  ["wa", "fb", "x"].forEach(function (k) {
+    document.getElementById("sh-" + k).addEventListener("click", function (e) { onSocial(k, "badge", shareStatus, e); });
+    document.getElementById("sh-" + k + "-c").addEventListener("click", function (e) { onSocial(k, "cert", certStatus, e); });
+  });
+  document.getElementById("sh-hero-btn").addEventListener("click", function () {
+    var k = this.getAttribute("data-sh");
+    if (k === "ig") onInstagram(heroStatus); else onSocial(k, "badge", heroStatus, null);
+  });
   document.getElementById("sh-more").addEventListener("click", onMore);
   document.getElementById("sh-copy").addEventListener("click", onCopy);
   document.getElementById("sh-ig-c").addEventListener("click", function () { onCertShare(true); });
