@@ -376,7 +376,7 @@ img { max-width: 100%; }
 .kcard-sheen::before { content: ""; position: absolute; inset: -20%;
   background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, .35) 48%, rgba(255, 255, 255, 0) 56%);
   transform: translateX(-60%); animation: kc-sheen 3.6s ease-in-out 1s infinite; }
-.kcard.tier-bronze .kcard-sheen::before, .kcard.tier-sprout .kcard-sheen::before { background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, .18) 48%, transparent 54%); }
+.kcard.tier-bronze .kcard-sheen::before { background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, .18) 48%, transparent 54%); }
 @keyframes kc-sheen { 0% { transform: translateX(-60%); } 55%, 100% { transform: translateX(60%); } }
 @media (prefers-reduced-motion: reduce) { .kcard-sheen::before { animation: none; opacity: 0; } }
 </style>

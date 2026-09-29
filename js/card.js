@@ -8,14 +8,13 @@
   var TIERS = {
     gold: { label: "ALTIN KÂŞİF KARTI", accent: "#f2c14e", text: "#ffe29a", stops: ["#fff3b0", "#f2c14e", "#b8861b", "#ffe9a0", "#c9962b", "#fff3b0"] },
     silver: { label: "GÜMÜŞ KÂŞİF KARTI", accent: "#dfe6ee", text: "#eef2f6", stops: ["#ffffff", "#cfd6de", "#8b96a3", "#f4f6f8", "#9aa3ad", "#ffffff"] },
-    bronze: { label: "BRONZ KÂŞİF KARTI", accent: "#e3a36f", text: "#ffd1a8", stops: ["#ffd9b8", "#d08a52", "#8a4a22", "#f2b98a", "#a0582a", "#ffd9b8"] },
-    sprout: { label: "FİDAN KÂŞİF KARTI", accent: "#9be27a", text: "#c9f2b0", stops: ["#c9f2b0", "#7ccf5a", "#2f7a22", "#b7ee98", "#3f8f2b", "#c9f2b0"] }
+    bronze: { label: "BRONZ KÂŞİF KARTI", accent: "#e3a36f", text: "#ffd1a8", stops: ["#ffd9b8", "#d08a52", "#8a4a22", "#f2b98a", "#a0582a", "#ffd9b8"] }
   };
+  // Üç aşama: 5/5 altın (stant hediyesi), 3–4 gümüş, 0–2 bronz
   function tierFor(correct, total) {
     if (correct >= total && total > 0) return "gold";
     if (correct >= 3) return "silver";
-    if (correct >= 1) return "bronze";
-    return "sprout";
+    return "bronze";
   }
 
   // Kartta fotoğrafın altında görünen ad ve yöre
@@ -181,14 +180,14 @@
       c.fillText(data.title, W / 2, 956);
 
       // istatistik kutuları
-      var boxes = [["PUAN", String(data.score)], ["DOĞRU", data.correct + "/" + data.total], ["YAŞ", data.age ? (data.age >= 18 ? "18+" : String(data.age)) : "–"]];
+      var boxes = [["PUAN", String(data.score)], ["DOĞRU", data.correct + "/" + data.total], ["YAŞ", data.age ? (data.age >= 18 ? "Yetişkin" : String(data.age)) : "–"]]; // "18+" yetişkin içerik uyarısını çağrıştırıyor
       var bw = 280, gap = 28, bx = (W - (bw * 3 + gap * 2)) / 2, by = 1004, bh = 148;
       boxes.forEach(function (b, k) {
         var x = bx + k * (bw + gap);
         rr(c, x, by, bw, bh, 26); c.fillStyle = "rgba(253,248,239,.07)"; c.fill();
         c.lineWidth = 2; c.strokeStyle = "rgba(227,163,111,.35)"; c.stroke();
         c.fillStyle = "rgba(253,248,239,.62)"; c.font = "800 24px " + BODY; c.fillText(b[0], x + bw / 2, by + 42);
-        c.fillStyle = k === 0 ? tier.text : "#fdf8ef"; c.font = "800 62px " + HEAD; c.fillText(b[1], x + bw / 2, by + 102);
+        c.fillStyle = k === 0 ? tier.text : "#fdf8ef"; fit(c, b[1], "800", 62, 36, HEAD, bw - 36); c.fillText(b[1], x + bw / 2, by + 102);
       });
 
       // logolar: beyaz plaka (Bakanlık + TAGEM) ve TEKNOFEST + Milli Teknoloji Hamlesi
