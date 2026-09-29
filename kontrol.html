@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarım &amp; Doğa Kâşifi – Ekran kontrolü</title>
+<style>
+  body { margin: 0; min-height: 100vh; background: #0b1638; color: #fdf8ef; font: 20px/1.5 "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  h1 { margin: 0 0 8px; font-size: 44px; color: #7be07b; }
+  .sub { margin: 0 0 28px; color: #c9d6f2; }
+  table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,.06); border-radius: 14px; overflow: hidden; }
+  td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.1); vertical-align: top; }
+  td:first-child { width: 38%; color: #c9d6f2; }
+  .ok { color: #7be07b; font-weight: 700; }
+  .bad { color: #ff8c8c; font-weight: 700; }
+  #sonuc { margin: 26px 0; padding: 18px 20px; border-radius: 14px; font-size: 26px; font-weight: 700; }
+  a.btn { display: inline-block; padding: 18px 34px; border-radius: 999px; background: #e30a17; color: #fff; font-size: 26px; font-weight: 800; text-decoration: none; }
+  .ua { font-size: 15px; word-break: break-all; color: #c9d6f2; }
+</style>
+</head>
+<body>
+<main>
+  <h1>✓ Site açıldı</h1>
+  <p class="sub">Tarım &amp; Doğa Kâşifi · ekran kontrol sayfası. Bu sayfayı görüyorsanız ekranın interneti ve güvenli bağlantısı çalışıyor.</p>
+  <table id="t"></table>
+  <div id="sonuc">Kontrol ediliyor…</div>
+  <a class="btn" href="oyun/">Oyunu aç ▶</a>
+  <p class="ua" id="ua"></p>
+</main>
+<script>
+/* Yalnız eski tarayıcılarda da çalışan kod (ES5): oyunun ihtiyaç duyduğu özellikleri tek tek dener. */
+(function () {
+  var rows = [], eksik = [];
+  function row(ad, deger, iyi) { rows.push("<tr><td>" + ad + "</td><td class='" + (iyi === false ? "bad" : "ok") + "'>" + deger + "</td></tr>"); if (iyi === false) eksik.push(ad); }
+  function dene(kod) { try { return !!(new Function(kod))(); } catch (e) { return false; } }
+  var now = new Date();
+  var yil = now.getFullYear();
+  row("Ekranın tarihi ve saati", now.toLocaleString("tr-TR"), yil >= 2026);
+  var m = navigator.userAgent.match(/Chrome\/(\d+)/);
+  row("Tarayıcı motoru", m ? "Chromium " + m[1] : "bilinmiyor", m ? +m[1] >= 80 : null);
+  row("Yeni JavaScript (ok fonksiyonu, sınıf)", dene("var f = (a = 1) => a; class A {}; return f() === 1;") ? "var" : "YOK", dene("var f = (a = 1) => a; class A {}; return f() === 1;"));
+  row("Async / await", dene("return typeof (async function () {}) === 'function';") ? "var" : "YOK", dene("return typeof (async function () {}) === 'function';"));
+  row("Dokunma (pointer events)", window.PointerEvent ? "var" : "YOK", !!window.PointerEvent);
+  var ar = window.CSS && CSS.supports && CSS.supports("aspect-ratio", "1 / 1");
+  row("Yeni CSS (aspect-ratio)", ar ? "var" : "YOK (görünüm biraz bozulabilir)", ar ? true : null);
+  var ls = false; try { localStorage.setItem("k", "1"); ls = localStorage.getItem("k") === "1"; } catch (e) {}
+  row("Günün tablosu kaydı (localStorage)", ls ? "var" : "YOK", ls);
+  row("İnternetsiz çalışma (service worker)", "serviceWorker" in navigator ? "var" : "yok (internet gerekir)", "serviceWorker" in navigator ? true : null);
+  row("Ekran boyutu", window.innerWidth + " × " + window.innerHeight + " (ölçek " + (window.devicePixelRatio || 1) + ")", null);
+  document.getElementById("t").innerHTML = rows.join("");
+  var s = document.getElementById("sonuc");
+  if (!eksik.length) { s.textContent = "✓ Oyun bu ekranda çalışır. Aşağıdaki düğmeyle açın."; s.style.background = "rgba(123,224,123,.15)"; }
+  else { s.textContent = "✗ Sorun: " + eksik.join(", ") + ". Bu ekranın fotoğrafını gönderin."; s.style.background = "rgba(255,140,140,.15)"; }
+  document.getElementById("ua").textContent = navigator.userAgent;
+})();
+</script>
+</body>
+</html>
