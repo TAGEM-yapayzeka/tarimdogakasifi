@@ -777,7 +777,7 @@ img { max-width: 100%; }
     var fe = $("#sp-fact"); clear(fe); fe.hidden = !sp;
     if (sp) {
       var b = document.createElement("b"); b.textContent = "🌿 " + sp.name + ": ";
-      fe.appendChild(b); fe.appendChild(document.createTextNode(sp.fact + " Bu tür dünyada yalnızca Türkiye'de yaşar."));
+      fe.appendChild(b); fe.appendChild(document.createTextNode(sp.fact + (/yalnız/i.test(sp.fact) ? "" : " Bu tür dünyada yalnızca Türkiye'de yaşar.")));
     }
 
     // belge

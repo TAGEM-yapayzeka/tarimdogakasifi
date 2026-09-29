@@ -159,11 +159,18 @@
         var place = PLACES[data.photoKey];
         if (place) { c.fillStyle = tier.text; c.font = "800 30px " + BODY; c.fillText(place, px + 46, py + ph - 38); }
       }
+      // Fotoğraf künyesi: kart paylaşıldığı için lisans gereği kartta kalır; altta şerit değil,
+      // fotoğrafın sağ kenarında dikey, küçük ve silik (dergilerdeki foto künyesi gibi)
       if (P) {
-        c.fillStyle = "rgba(253,248,239,.55)"; c.font = "500 19px " + BODY; c.textAlign = "right";
         var lic = /public domain/i.test(P.lic) ? "Kamu malı" : P.lic;
         var cred = "Foto: " + P.by + " · " + lic + " · Wikimedia Commons";
-        fit(c, cred, "500", 19, 13, BODY, pw); c.fillText(cred, px + pw, py + ph + 26); c.textAlign = "left";
+        c.save();
+        c.translate(px + pw - 22, py + ph - 26); c.rotate(-Math.PI / 2);
+        fit(c, cred, "600", 17, 11, BODY, ph - 150);
+        c.textAlign = "left"; c.textBaseline = "middle";
+        c.shadowColor = "rgba(0,0,0,.7)"; c.shadowBlur = 6;
+        c.fillStyle = "rgba(253,248,239,.6)"; c.fillText(cred, 0, 0);
+        c.restore();
       }
 
       // ad ve unvan
