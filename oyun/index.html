@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Tarım & Doğa Kâşifi</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-screen="attract">
+
+<!-- ======= Arka plan: gündüz gökyüzü + Şanlıurfa manzarası ======= -->
+<div class="sky" aria-hidden="true"><i id="s1"></i><i id="s2"></i><i id="s3"></i></div>
+<div class="drone" aria-hidden="true">
+  <!-- gündüz: gökyüzüne karşı koyu gövdeli tarım dronu -->
+  <svg viewBox="0 0 120 60"><g fill="none" stroke="#2a3340" stroke-width="3" stroke-linecap="round">
+    <path d="M20 22 L100 22"/><path d="M40 22 L48 34 L72 34 L80 22"/><path d="M20 22V17M100 22V17"/></g>
+    <rect x="45" y="25" width="30" height="13" rx="5" fill="#f2f5f8" stroke="#2a3340" stroke-width="2"/><rect x="52" y="38" width="16" height="6" rx="2" fill="#2a3340"/><circle cx="60" cy="31.5" r="2.4" fill="#22c55e"/>
+    <g fill="#dde6ef" fill-opacity=".85" stroke="#2a3340" stroke-width="1" class="rotor"><ellipse cx="20" cy="16" rx="16" ry="3"/><ellipse cx="100" cy="16" rx="16" ry="3"/></g>
+  </svg>
+</div>
+<!-- Harran ovasında aydınlık sabah: Urfa Kalesi ve Korint sütunları, Harran kümbet evleri ve Ulu Cami minaresi, Göbeklitepe T-dikilitaşları, pamuk-buğday tarlaları, fıstık bahçeleri -->
+<!-- manzara ayrı SVG dosyasında: tarayıcı bir kez rasterleştirir, her karede yeniden işlemez (tablette akıcı); dikey ekranda ayrı dizilim -->
+<picture class="landscape-pic">
+  <source media="(orientation: portrait)" srcset="assets/svg/landscape-port.svg">
+  <img class="landscape" src="assets/svg/landscape.svg" alt="" aria-hidden="true" draggable="false" decoding="sync">
+</picture>
+
+<!-- ======= Üst bant: kurum logoları ======= -->
+<header class="topbar">
+  <div class="brand-plate">
+    <img src="assets/logos/bakanlik.png" alt="T.C. Tarım ve Orman Bakanlığı" class="emblem">
+    <div class="brand-text"><b>T.C. TARIM VE ORMAN BAKANLIĞI</b><span>Tarımsal Araştırmalar ve Politikalar Genel Müdürlüğü</span></div>
+    <span class="brand-sep"></span>
+    <img src="assets/logos/tagem.png" alt="TAGEM" class="tagem">
+  </div>
+  <div class="event">
+    <div class="event-text"><b>GÜNEYDOĞU</b><span>30 Eylül – 4 Ekim 2026</span><span>Şanlıurfa GAP Havalimanı</span></div>
+    <img src="assets/logos/teknofest.png" alt="TEKNOFEST Havacılık, Uzay ve Teknoloji Festivali" class="teknofest">
+    <span class="event-sep"></span>
+    <img src="assets/logos/milli-teknoloji-hamlesi.png" alt="Milli Teknoloji Hamlesi" class="mth">
+  </div>
+</header>
+
+<div class="ticker">
+  <span class="ticker-label"><span class="ico-wrap" data-icon="trophy"></span>Günün İlk 10 Kâşifi</span>
+  <div class="ticker-track"><div class="ticker-inner" id="ticker"></div></div>
+</div>
+
+<main id="stage">
+
+  <!-- 1) Karşılama -->
+  <section id="scr-attract" class="screen active">
+    <div class="attract-main">
+      <p class="kicker">TAGEM standı · Mikro bilgi yarışması</p>
+      <h1 class="title"><span class="t-line">Tarım <span class="amp">&amp;</span> Doğa</span><span class="title-hl">Kâşifi</span></h1>
+      <ul class="rules">
+        <li><b>5</b><span>soru</span></li>
+        <li><b>15–20</b><span>saniye</span></li>
+        <li><b>⚡</b><span>hızlı cevap,<br>daha çok puan</span></li>
+      </ul>
+      <button class="cta cta-xl pulse" id="btn-start">Başlamak için dokun</button>
+      <p class="gift-note"><span class="gift-ico">🎁</span> 5'te 5 yapan kâşiflere stantta sürpriz hediye</p>
+    </div>
+    <button class="credits-link" id="btn-credits" type="button">Fotoğraf ve harita kaynakları</button>
+    <div class="deck-wrap" aria-hidden="true">
+      <p class="deck-kicker">Bunları tanıyor musun?</p>
+      <div class="deck" id="deck"></div>
+    </div>
+    <aside class="board">
+      <h2><span class="ico-wrap" data-icon="trophy"></span>Günün İlk 10 Kâşifi</h2>
+      <ol id="board-list"></ol>
+    </aside>
+  </section>
+
+  <!-- 2) Yaş grubu seçimi -->
+  <section id="scr-age" class="screen">
+    <h2 class="screen-title">Kaç yaşındasın?</h2>
+    <p class="age-sub">Sorular yaşına göre seçilir</p>
+    <div class="age-grid" id="age-grid"></div>
+    <button class="ghost" data-go="attract">← Ana ekran</button>
+  </section>
+
+  <!-- 3) Soru -->
+  <section id="scr-quiz" class="screen">
+    <div class="quiz-top">
+      <div class="progress" id="progress"></div>
+      <div class="q-meta"><span class="chip" id="q-type"></span><span class="chip" id="q-cat"></span></div>
+      <div class="score-box">PUAN <b id="score">0</b></div>
+      <div class="timer" id="timer">
+        <svg viewBox="0 0 120 120"><circle class="t-bg" cx="60" cy="60" r="52"/><circle class="t-fg" id="timer-ring" cx="60" cy="60" r="52"/></svg>
+        <span id="timer-num">15</span>
+      </div>
+      <button class="ghost quit" id="btn-quit" type="button" aria-label="Oyundan çık">✕ Çık</button>
+    </div>
+    <h2 class="question" id="q-text"></h2>
+    <div class="q-body" id="q-body"></div>
+  </section>
+
+  <!-- 4) Sonuç -->
+  <section id="scr-result" class="screen">
+    <div class="result-card panel">
+      <div class="res-icon" id="res-icon">🏆</div>
+      <div class="res-title" id="res-title"></div>
+      <div class="res-stars" id="res-stars"></div>
+      <div class="res-score"><span id="res-score">0</span><small>puan</small></div>
+      <div class="res-sub" id="res-sub"></div>
+      <div class="gift" id="res-gift" hidden>🎁 Tebrikler! Stant görevlisinden hediyeni almayı unutma!</div>
+      <div class="res-rank" id="res-rank"></div>
+      <div class="res-actions">
+        <button class="ghost" id="btn-finish">Bitir</button>
+        <button class="cta" id="btn-badge">🏅 Rozetimi Oluştur</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5) Ad girişi -->
+  <section id="scr-name" class="screen">
+    <h2 class="screen-title">Adını ve soyadını yaz ✍️</h2>
+    <p class="name-sub">Kâşif Kartında ve katılım belgende görünecek</p>
+    <div class="name-field empty" id="name-field"><span id="name-val"></span><i class="caret"></i><em class="ph">AD SOYAD</em></div>
+    <div class="name-warn" id="name-warn"></div>
+    <div class="keyboard" id="keyboard"></div>
+    <div class="name-actions">
+      <button class="ghost" id="btn-skip">Adsız devam et</button>
+      <button class="cta" id="btn-name-ok">Tamam ✓</button>
+    </div>
+  </section>
+
+  <!-- 6) Rozet + QR -->
+  <section id="scr-badge" class="screen">
+    <div class="badge-wrap">
+      <div class="kcard" id="kcard-wrap">
+        <canvas id="kcard" width="1080" height="1512" aria-label="Kâşif kartı"></canvas>
+        <i class="kcard-sheen" aria-hidden="true"></i>
+      </div>
+      <div class="qr-box panel qr-off" id="qr-off" hidden>
+        <p>📱 Telefona kaydetme özelliği<br><b>çok yakında</b> burada!</p>
+        <p class="qr-off-sub">Kâşif Kartının fotoğrafını çekebilirsin.</p>
+      </div>
+      <div class="qr-box panel" id="qr-box">
+        <div class="qr" id="qr"></div>
+        <p id="qr-hint">📱 Telefonunun kamerasıyla tara,<br><b>Kâşif Kartını kaydet ve paylaş!</b></p>
+        <div class="qr-social" id="qr-social" role="group" aria-label="Nerede paylaşacaksın?">
+          <button type="button" class="soc soc-ig" data-sh="ig" aria-label="Instagram" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg></button>
+          <button type="button" class="soc soc-wa" data-sh="wa" aria-label="WhatsApp" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 19.5l1.2-3.6A8 8 0 1 1 8.3 18.4z"/><path d="M9.2 8.6c.3 2.7 2.4 4.9 5.2 5.4l1-1.2-1.8-.9-.8.8c-1-.4-1.9-1.3-2.4-2.3l.8-.8-.8-1.8z" fill="currentColor" stroke="none"/></svg></button>
+          <button type="button" class="soc soc-fb" data-sh="fb" aria-label="Facebook" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 21v-7.2h2.4l.4-2.9h-2.8V9.1c0-.8.3-1.4 1.4-1.4h1.5V5.1c-.3 0-1.2-.1-2.2-.1-2.2 0-3.6 1.3-3.6 3.7v2.2H8.1v2.9h2.5V21z"/></svg></button>
+          <button type="button" class="soc soc-x" data-sh="x" aria-label="X" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.6 3h3l-6.6 7.6L21.8 21h-6.1l-4.8-6.2L5.4 21h-3l7.1-8.1L2 3h6.2l4.3 5.7zm-1 16.2h1.7L7.5 4.7H5.7z"/></svg></button>
+        </div>
+        <p class="qr-pick" id="qr-pick">👆 Paylaşacağın yere dokun</p>
+      </div>
+    </div>
+    <div class="badge-actions">
+      <span class="autoback" id="autoback"></span>
+      <button class="cta" id="btn-done">Bitir ✓</button>
+    </div>
+  </section>
+</main>
+
+<!-- Geri bildirim kartı -->
+<div id="feedback" class="overlay fb">
+  <div class="fb-card">
+    <figure class="fb-photo" id="fb-photo" hidden><img alt=""></figure>
+    <div class="fb-head" id="fb-head"></div>
+    <div class="fb-answer" id="fb-answer"></div>
+    <div class="fb-fact"><b>💡 Biliyor muydunuz?</b><p id="fb-fact"></p></div>
+    <button class="cta" id="fb-next">Sıradaki soru ➜</button>
+    <div class="fb-bar"><i id="fb-bar"></i></div>
+  </div>
+</div>
+
+<div id="credits" class="overlay">
+  <div class="panel credits-card">
+    <h3>Fotoğraf ve harita kaynakları</h3>
+    <p class="credits-intro">Fotoğraflar Wikimedia Commons'tan, belirtilen serbest lisanslarla kullanılmıştır. Çizimler ve sesler bu uygulama için üretilmiştir.</p>
+    <ul class="credits-list" id="credits-list"></ul>
+    <button class="cta" id="credits-close" type="button">Kapat</button>
+  </div>
+</div>
+
+<div id="flash"></div>
+<canvas id="fx"></canvas>
+
+<!-- Gizli yönetici erişimi: sol üst köşeye 3 sn basılı tutma -->
+<div id="admin-hot"></div>
+<div id="pinpad" class="overlay">
+  <div class="panel pin-card">
+    <h3>Yönetici PIN</h3>
+    <div class="pin-dots" id="pin-dots"></div>
+    <div class="pin-grid">
+      <button data-p="1">1</button><button data-p="2">2</button><button data-p="3">3</button>
+      <button data-p="4">4</button><button data-p="5">5</button><button data-p="6">6</button>
+      <button data-p="7">7</button><button data-p="8">8</button><button data-p="9">9</button>
+      <button data-p="x">✕</button><button data-p="0">0</button><button data-p="<">⌫</button>
+    </div>
+  </div>
+</div>
+<div id="admin" class="overlay">
+  <div class="panel admin-card">
+    <h3>Stant Yönetimi – Bugün</h3>
+    <div class="adm-stats" id="adm-stats"></div>
+    <p class="adm-info" id="adm-info"></p>
+    <div class="adm-kiosk" id="adm-kiosk" hidden></div>
+    <h4 class="adm-sub">Günün tablosu (uygunsuz bir adı tek tek silebilirsiniz)</h4>
+    <ol class="adm-lb" id="adm-lb"></ol>
+    <div class="adm-actions">
+      <button class="ghost" id="adm-sound"></button>
+      <button class="ghost" id="adm-full">⛶ Tam ekran</button>
+      <button class="ghost danger" id="adm-reset"></button>
+      <button class="cta" id="adm-close">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/vendor/qrcode.js"></script>
+<script src="js/turkey-map.js"></script>
+<script src="js/photos.js"></script>
+<script src="js/endemics.js"></script>
+<script src="js/card.js"></script>
+<script src="js/art.js"></script>
+<script src="js/sfx.js"></script>
+<script src="js/keyboard.js"></script>
+<script src="js/questions.js"></script>
+<script src="js/app.js"></script>
+<script>
+/* Yalnız web sürümü: çevrimdışı önbellek + ilk dokunuşta tam ekran (LG Smart Monitor tarayıcısı için) */
+(function () {
+  if ("serviceWorker" in navigator && window.isSecureContext) {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  }
+  var fs = function () {
+    var d = document.documentElement;
+    if (!document.fullscreenElement && d.requestFullscreen) d.requestFullscreen().catch(function () {});
+  };
+  document.addEventListener("pointerdown", fs, true);
+})();
+</script>
+</body>
+</html>
